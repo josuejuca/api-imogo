@@ -16,7 +16,7 @@ class Usuario(Base):
     senha = Column(String(32), nullable=False)
     origem = Column(String(50), nullable=False)
     data_criacao = Column(DateTime, default=func.now())
-    foto_conta = Column(String(255))
+    foto_conta = Column(String(255), nullable=True)
     nome_completo = Column(String(150), nullable=True)
     data_nascimento = Column(DateTime, nullable=True)
     cpf = Column(String(14), nullable=True)
@@ -29,11 +29,11 @@ class Usuario(Base):
     nome_pai = Column(String(100), nullable=True)
     cnh = Column(String(20), nullable=True)
 
-    imoveis = relationship("Imoveis", back_populates="usuario")
+    imoveis = relationship("Imoveis", back_populates="usuario")  # Nome correto da tabela
 
 
 class Imoveis(Base):
-    __tablename__ = "imoveis"
+    __tablename__ = "Imoveis"  # Nome correto da tabela
 
     id = Column(Integer, primary_key=True, index=True)
     usuario_id = Column(Integer, ForeignKey("usuario.id"), nullable=False)
@@ -78,3 +78,6 @@ class Imoveis(Base):
     saldo_devedor = Column(DECIMAL(15, 2), nullable=True)
 
     usuario = relationship("Usuario", back_populates="imoveis")
+
+
+# ALTER TABLE `Imoveis` ADD `foto_app_capa` VARCHAR(100) NOT NULL DEFAULT 'https://cdn.imogo.com.br/img/banner_imovel.png' AFTER `saldo_devedor`;

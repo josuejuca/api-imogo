@@ -113,3 +113,19 @@ def delete_imovel(db: Session, imovel_id: int):
 
 def get_imoveis_por_usuario(db: Session, usuario_id: int, skip: int = 0, limit: int = 10):
     return db.query(Imoveis).filter(Imoveis.usuario_id == usuario_id).offset(skip).limit(limit).all()
+
+# login
+
+# Verifica o login de um usuário
+def authenticate_usuario(db: Session, email: str, senha: str):
+    # Verifica se o e-mail existe no banco de dados
+    db_usuario = db.query(Usuario).filter(Usuario.email == email).first()
+    if not db_usuario:
+        return None, "E-mail não encontrado."
+    
+    # Verifica se a senha está correta
+    hashed_senha = get_md5_hash(senha)
+    if hashed_senha != db_usuario.senha:
+        return None, "Senha incorreta."
+
+    return db_usuario, None

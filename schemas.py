@@ -62,6 +62,7 @@ class ImovelBase(BaseModel):
     detalhes_do_imovel: Optional[List[str]] = None
     detalhes_do_condominio: Optional[List[str]] = None
     formas_pagamento: Optional[List[str]] = None
+    foto_app_capa: Optional[str] = "https://cdn.imogo.com.br/img/banner_imovel.png"
 
 
 class ImovelCreate(ImovelBase):
@@ -79,6 +80,45 @@ class Imovel(ImovelBase):
     class Config:
         from_attributes = True
         
+class LoginSchema(BaseModel):
+    email: str
+    senha: str
 
 
+# Criação dos imoveis 
+# Parte 1
+class ImovelCaracteristicasUpdate(BaseModel):
+    classificacao: Optional[str] = None
+    tipo: Optional[str] = None
+    usuario_id: int
+    status: int
+   
+    numero_quartos: Optional[int] = None
+    numero_suites: Optional[int] = None
+    numero_banheiros: Optional[int] = None
+    numero_garagem: Optional[int] = None
+    orientacao_sol: Optional[str] = None
+    area_privativa: Optional[float] = None
+    area_total: Optional[float] = None
+    detalhes_do_imovel: Optional[List[str]] = None
+    detalhes_do_condominio: Optional[List[str]] = None
+    descricao_complementar: Optional[str] = None
+    situacao_imovel: Optional[str] = None
+    formas_pagamento: Optional[List[str]] = None
+    valor_venda: Optional[float] = None
 
+# parte 2  
+
+class ImovelEnderecoUpdate(BaseModel):
+    cep: Optional[str] = None
+    endereco: Optional[str] = None
+    complemento: Optional[str] = None
+    bairro: Optional[str] = None
+    cidade: Optional[str] = None
+    uf: Optional[str] = None
+# parte 3 
+
+class ImovelProprietarioUpdate(BaseModel):
+    nome_completo_prop: Optional[str] = None
+    cpf_prop: Optional[str] = None
+    estado_civil_prop: Optional[str] = None
