@@ -1,9 +1,20 @@
 # crud.py
-
 from sqlalchemy.orm import Session
-from models import Usuario, Imoveis
-from schemas import UsuarioCreate, UsuarioUpdate, ImovelCreate, ImovelUpdate
 import hashlib
+import models  # Adicione esta linha
+import schemas
+from models import Usuario, Imoveis, CaracteristicasImovel, CaracteristicasCondominio
+from schemas import (
+    UsuarioCreate, 
+    UsuarioUpdate, 
+    ImovelCreate, 
+    ImovelUpdate, 
+    CaracteristicasImovelCreate, 
+    CaracteristicasImovelUpdate, 
+    CaracteristicasCondominioCreate, 
+    CaracteristicasCondominioUpdate
+)
+
 
 # Função para gerar hash MD5 de uma senha
 def get_md5_hash(senha: str) -> str:
@@ -82,10 +93,23 @@ def get_imoveis(db: Session, skip: int = 0, limit: int = 10):
 
 
 def create_imovel(db: Session, imovel: ImovelCreate):
+    # Verifica o usuário que está criando o imóvel
+    db_usuario = db.query(Usuario).filter(Usuario.id == imovel.usuario_id).first()
+
+    if not db_usuario:
+        return None, "Usuário não encontrado."
+    
+    # Verifica se o status do usuário é 1 e o atualiza para 2 se for o caso
+    if db_usuario.status == 1:
+        db_usuario.status = 2
+        db.commit()
+
+    # Cria o imóvel normalmente
     db_imovel = Imoveis(**imovel.dict())
     db.add(db_imovel)
     db.commit()
     db.refresh(db_imovel)
+    
     return db_imovel
 
 
@@ -129,3 +153,98 @@ def authenticate_usuario(db: Session, email: str, senha: str):
         return None, "Senha incorreta."
 
     return db_usuario, None
+
+
+# CRUD para Características de Imóvel
+def get_caracteristicas_imovel(db: Session, skip: int = 0, limit: int = 10):
+    return db.query(models.CaracteristicasImovel).offset(skip).limit(limit).all()
+
+def create_caracteristicas_imovel(db: Session, caracteristicas: schemas.CaracteristicasImovelCreate):
+    db_caracteristicas = models.CaracteristicasImovel(**caracteristicas.dict())
+    db.add(db_caracteristicas)
+    db.commit()
+    db.refresh(db_caracteristicas)
+    return db_caracteristicas
+
+def update_caracteristicas_imovel(db: Session, id: int, caracteristicas: schemas.CaracteristicasImovelUpdate):
+    db_caracteristicas = db.query(models.CaracteristicasImovel).filter(models.CaracteristicasImovel.id == id).first()
+    if db_caracteristicas is None:
+        return None
+    for key, value in caracteristicas.dict(exclude_unset=True).items():
+        setattr(db_caracteristicas, key, value)
+    db.commit()
+    db.refresh(db_caracteristicas)
+    return db_caracteristicas
+
+def delete_caracteristicas_imovel(db: Session, id: int):
+    db_caracteristicas = db.query(models.CaracteristicasImovel).filter(models.CaracteristicasImovel.id == id).first()
+    if db_caracteristicas is None:
+        return None
+    db.delete(db_caracteristicas)
+    db.commit()
+    return db_caracteristicas
+
+# CRUD para Características de Condomínio
+def get_caracteristicas_condominio(db: Session, skip: int = 0, limit: int = 10):
+    return db.query(models.CaracteristicasCondominio).offset(skip).limit(limit).all()
+
+def create_caracteristicas_condominio(db: Session, caracteristicas: schemas.CaracteristicasCondominioCreate):
+    db_caracteristicas = models.CaracteristicasCondominio(**caracteristicas.dict())
+    db.add(db_caracteristicas)
+    db.commit()
+    db.refresh(db_caracteristicas)
+    return db_caracteristicas
+
+def update_caracteristicas_condominio(db: Session, id: int, caracteristicas: schemas.CaracteristicasCondominioUpdate):
+    db_caracteristicas = db.query(models.CaracteristicasCondominio).filter(models.CaracteristicasCondominio.id == id).first()
+    if db_caracteristicas is None:
+        return None
+    for key, value in caracteristicas.dict(exclude_unset=True).items():
+        setattr(db_caracteristicas, key, value)
+    db.commit()
+    db.refresh(db_caracteristicas)
+    return db_caracteristicas
+
+def delete_caracteristicas_condominio(db: Session, id: int):
+    db_caracteristicas = db.query(models.CaracteristicasCondominio).filter(models.CaracteristicasCondominio.id == id).first()
+    if db_caracteristicas is None:
+        return None
+    db.delete(db_caracteristicas)
+    db.commit()
+    return db_caracteristicas
+
+# CRUD para Características de Condomínio
+def get_caracteristicas_condominio(db: Session, skip: int = 0, limit: int = 10):
+    return db.query(models.CaracteristicasCondominio).offset(skip).limit(limit).all()
+
+def create_caracteristicas_condominio(db: Session, caracteristicas: schemas.CaracteristicasCondominioCreate):
+    db_caracteristicas = models.CaracteristicasCondominio(**caracteristicas.dict())
+    db.add(db_caracteristicas)
+    db.commit()
+    db.refresh(db_caracteristicas)
+    return db_caracteristicas
+
+def update_caracteristicas_condominio(db: Session, id: int, caracteristicas: schemas.CaracteristicasCondominioUpdate):
+    db_caracteristicas = db.query(models.CaracteristicasCondominio).filter(models.CaracteristicasCondominio.id == id).first()
+    if db_caracteristicas is None:
+        return None
+    for key, value in caracteristicas.dict(exclude_unset=True).items():
+        setattr(db_caracteristicas, key, value)
+    db.commit()
+    db.refresh(db_caracteristicas)
+    return db_caracteristicas
+
+def delete_caracteristicas_condominio(db: Session, id: int):
+    db_caracteristicas = db.query(models.CaracteristicasCondominio).filter(models.CaracteristicasCondominio.id == id).first()
+    if db_caracteristicas is None:
+        return None
+    db.delete(db_caracteristicas)
+    db.commit()
+    return db_caracteristicas
+
+def get_caracteristica_imovel_by_id(db: Session, id: int):
+    return db.query(models.CaracteristicasImovel).filter(models.CaracteristicasImovel.id == id).first()
+
+def get_caracteristica_condominio_by_id(db: Session, id: int):
+    return db.query(models.CaracteristicasCondominio).filter(models.CaracteristicasCondominio.id == id).first()
+

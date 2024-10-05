@@ -117,13 +117,17 @@ def login(usuario: schemas.LoginSchema, db: Session = Depends(get_db)):
 
 # rota de criação de imoveis 
 
-@app.post("/imoveis/caracteristicas", response_model=schemas.Imovel)
+@app.post("/api/v1/imoveis/caracteristicas", response_model=schemas.Imovel)
 def create_imovel_caracteristicas(imovel_data: schemas.ImovelCaracteristicasUpdate, db: Session = Depends(get_db)):
     imovel_create = schemas.ImovelCreate(**imovel_data.dict())  # Converte o dado de características para criação
     created_imovel = crud.create_imovel(db=db, imovel=imovel_create)
+    
+    if created_imovel is None:
+        raise HTTPException(status_code=400, detail="Erro ao criar imóvel.")
+    
     return created_imovel
 
-@app.put("/imoveis/{imovel_id}/endereco", response_model=schemas.Imovel)
+@app.put("/api/v1/imoveis/{imovel_id}/endereco", response_model=schemas.Imovel)
 def update_endereco_imovel(imovel_id: int, imovel_data: schemas.ImovelEnderecoUpdate, db: Session = Depends(get_db)):
     db_imovel = crud.get_imovel(db, imovel_id=imovel_id)
     if db_imovel is None:
@@ -132,7 +136,7 @@ def update_endereco_imovel(imovel_id: int, imovel_data: schemas.ImovelEnderecoUp
     updated_imovel = crud.update_imovel(db, imovel_id=imovel_id, imovel=imovel_data)
     return updated_imovel
 
-@app.put("/imoveis/{imovel_id}/proprietario", response_model=schemas.Imovel)
+@app.put("/api/v1/imoveis/{imovel_id}/proprietario", response_model=schemas.Imovel)
 def update_proprietario_imovel(imovel_id: int, imovel_data: schemas.ImovelProprietarioUpdate, db: Session = Depends(get_db)):
     db_imovel = crud.get_imovel(db, imovel_id=imovel_id)
     if db_imovel is None:
@@ -140,3 +144,61 @@ def update_proprietario_imovel(imovel_id: int, imovel_data: schemas.ImovelPropri
     
     updated_imovel = crud.update_imovel(db, imovel_id=imovel_id, imovel=imovel_data)
     return updated_imovel
+
+
+# endpoitn caracteristicas imob
+
+@app.get("/api/v1/caracteristicas_imovel/", response_model=List[schemas.CaracteristicasImovel], tags=["caracteristicas"])
+def read_caracteristicas_imovel(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    return crud.get_caracteristicas_imovel(db, skip=skip, limit=limit)
+
+@app.post("/api/v1/caracteristicas_imovel/", response_model=schemas.CaracteristicasImovel, tags=["caracteristicas"])
+def create_caracteristicas_imovel(caracteristicas: schemas.CaracteristicasImovelCreate, db: Session = Depends(get_db)):
+    return crud.create_caracteristicas_imovel(db=db, caracteristicas=caracteristicas)
+
+@app.put("/api/v1/caracteristicas_imovel/{id}", response_model=schemas.CaracteristicasImovel, tags=["caracteristicas"])
+def update_caracteristicas_imovel(id: int, caracteristicas: schemas.CaracteristicasImovelUpdate, db: Session = Depends(get_db)):
+    updated_caracteristicas = crud.update_caracteristicas_imovel(db=db, id=id, caracteristicas=caracteristicas)
+    if updated_caracteristicas is None:
+        raise HTTPException(status_code=404, detail="Características do imóvel não encontradas")
+    return updated_caracteristicas
+
+@app.delete("/api/v1/caracteristicas_imovel/{id}", response_model=schemas.CaracteristicasImovel, tags=["caracteristicas"])
+def delete_caracteristicas_imovel(id: int, db: Session = Depends(get_db)):
+    deleted_caracteristicas = crud.delete_caracteristicas_imovel(db=db, id=id)
+    if deleted_caracteristicas is None:
+        raise HTTPException(status_code=404, detail="Características do imóvel não encontradas")
+    return deleted_caracteristicas
+
+# endpoitn caracteristicas condominio
+
+@app.get("/api/v1/caracteristicas_condominio/", response_model=List[schemas.CaracteristicasCondominio], tags=["caracteristicas"])
+def read_caracteristicas_condominio(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    return crud.get_caracteristicas_condominio(db, skip=skip, limit=limit)
+
+@app.post("/api/v1/caracteristicas_condominio/", response_model=schemas.CaracteristicasCondominio, tags=["caracteristicas"])
+def create_caracteristicas_condominio(caracteristicas: schemas.CaracteristicasCondominioCreate, db: Session = Depends(get_db)):
+    return crud.create_caracteristicas_condominio(db=db, caracteristicas=caracteristicas)
+
+@app.put("/api/v1/caracteristicas_condominio/{id}", response_model=schemas.CaracteristicasCondominio, tags=["caracteristicas"])
+def update_caracteristicas_condominio(id: int, caracteristicas: schemas.CaracteristicasCondominioUpdate, db: Session = Depends(get_db)):
+    updated_caracteristicas = crud.update_caracteristicas_condominio(db=db, id=id, caracteristicas=caracteristicas)
+    if updated_caracteristicas is None:
+        raise HTTPException(status_code=404, detail="Características do condomínio não encontradas")
+    return updated_caracteristicas
+
+@app.delete("/api/v1/caracteristicas_condominio/{id}", response_model=schemas.CaracteristicasCondominio, tags=["caracteristicas"])
+def delete_caracteristicas_condominio(id: int, db: Session = Depends(get_db)):
+    deleted_caracteristicas = crud.delete_caracteristicas_condominio(db=db, id=id)
+    if deleted_caracteristicas is None:
+        raise HTTPException(status_code=404, detail="Características do condomínio não encontradas")
+    return deleted_caracteristicas
+
+
+@app.get("/api/v1/caracteristicas_imovel/{id}", response_model=schemas.CaracteristicasImovel, tags=["caracteristicas"])
+def read_caracteristica_imovel(id: int, db: Session = Depends(get_db)):
+    db_caracteristica = crud.get_caracteristica_imovel_by_id(db, id=id)
+    if db_caracteristica is None:
+        raise HTTPException(status_code=404, detail="Características do imóvel não encontradas")
+    return db_caracteristica
+

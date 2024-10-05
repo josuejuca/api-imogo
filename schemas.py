@@ -122,3 +122,39 @@ class ImovelProprietarioUpdate(BaseModel):
     nome_completo_prop: Optional[str] = None
     cpf_prop: Optional[str] = None
     estado_civil_prop: Optional[str] = None
+    
+    
+    
+    
+# Esquemas para Características de Imóvel
+class CaracteristicasImovelBase(BaseModel):
+    caracteristicas: str
+
+class CaracteristicasImovelCreate(CaracteristicasImovelBase):
+    pass
+
+class CaracteristicasImovelUpdate(CaracteristicasImovelBase):
+    pass
+
+class CaracteristicasImovel(CaracteristicasImovelBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+
+# Esquemas para Características de Condomínio
+class CaracteristicasCondominioBase(BaseModel):
+    caracteristicas: str
+
+class CaracteristicasCondominioCreate(CaracteristicasCondominioBase):
+    pass
+
+class CaracteristicasCondominioUpdate(CaracteristicasCondominioBase):
+    pass
+
+class CaracteristicasCondominio(CaracteristicasCondominioBase):
+    id: int
+
+    class Config:
+        from_attributes = True

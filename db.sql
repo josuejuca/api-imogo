@@ -127,3 +127,16 @@ CREATE TABLE usuario (
     cnh VARCHAR(20) DEFAULT NULL,
     CONSTRAINT unique_email_cpf UNIQUE (email, cpf)
 );
+
+-- script das caracteristicas 
+
+CREATE TABLE `quadr767_imogo_juca`.`caracteristicas_imovel` (
+  `id` INT NOT NULL,
+  `caracteristicas` VARCHAR(100) NOT NULL,
+  PRIMARY KEY (`id`));
+
+CREATE TABLE `quadr767_imogo_juca`.`caracteristicas_condominio` (
+  `id` INT NOT NULL,
+  `caracteristicas` VARCHAR(100) NOT NULL,
+  PRIMARY KEY (`id`));
+

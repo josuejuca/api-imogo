@@ -76,8 +76,23 @@ class Imoveis(Base):
     cartorio_matricula = Column(String(100), nullable=True)
     porcentagem_corretagem = Column(DECIMAL(5, 2), nullable=True)
     saldo_devedor = Column(DECIMAL(15, 2), nullable=True)
+    # Nova coluna foto_app_capa com valor padrão
+    foto_app_capa = Column(String(255), nullable=False, default="https://cdn.imogo.com.br/img/banner_imovel.png")
 
     usuario = relationship("Usuario", back_populates="imoveis")
 
 
 # ALTER TABLE `Imoveis` ADD `foto_app_capa` VARCHAR(100) NOT NULL DEFAULT 'https://cdn.imogo.com.br/img/banner_imovel.png' AFTER `saldo_devedor`;
+
+
+class CaracteristicasImovel(Base):
+    __tablename__ = "caracteristicas_imovel"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    caracteristicas = Column(String(100), nullable=False)
+
+class CaracteristicasCondominio(Base):
+    __tablename__ = "caracteristicas_condominio"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    caracteristicas = Column(String(100), nullable=False)
