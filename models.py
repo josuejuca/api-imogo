@@ -1,6 +1,6 @@
 # models.py
 
-from sqlalchemy import Column, Integer, String, Text, DECIMAL, Enum, JSON, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, Text, DECIMAL, Enum, JSON, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
@@ -78,9 +78,13 @@ class Imoveis(Base):
     saldo_devedor = Column(DECIMAL(15, 2), nullable=True)
     # Nova coluna foto_app_capa com valor padrão
     foto_app_capa = Column(String(255), nullable=False, default="https://cdn.imogo.com.br/img/banner_imovel.png")
+    tipo_documento = Column(String(50), nullable=True)
+    usuario_proprietario = Column(Boolean, default=False)
+    foto_pessoal = Column(String(255), nullable=True)
+    rg_frente = Column(String(255), nullable=True)
+    rg_costa = Column(String(255), nullable=True)   
 
     usuario = relationship("Usuario", back_populates="imoveis")
-
 
 # ALTER TABLE `Imoveis` ADD `foto_app_capa` VARCHAR(100) NOT NULL DEFAULT 'https://cdn.imogo.com.br/img/banner_imovel.png' AFTER `saldo_devedor`;
 

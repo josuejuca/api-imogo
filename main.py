@@ -1,10 +1,16 @@
 # main.py
 
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, File, UploadFile, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 import crud, models, schemas
 from database import SessionLocal, engine
+
+
+# Uploads 
+from models import Imoveis  # Certifique-se de importar o modelo 
+import os
+import uuid  # Para gerar nomes aleatórios
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -195,3 +201,131 @@ def read_caracteristica_imovel(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Características do imóvel não encontradas")
     return db_caracteristica
 
+
+# uploads de arquivos
+# Função para salvar o arquivo no diretório
+def save_file(file: UploadFile, file_type: str):
+    # Gera um nome de arquivo aleatório com extensão baseada no nome original
+    file_extension = file.filename.split(".")[-1]
+    random_name = f"{file_type}_{uuid.uuid4().hex}.{file_extension}"
+
+    # Define o caminho onde o arquivo será salvo
+    file_location = f"uploads/{random_name}"
+
+    # Cria o diretório se não existir
+    os.makedirs(os.path.dirname(file_location), exist_ok=True)
+
+    # Salva o arquivo
+    with open(file_location, "wb+") as file_object:
+        file_object.write(file.file.read())
+
+    return file_location
+
+# Rota para upload dos arquivos de CNH e QR Code
+@app.post("/imoveis/{imovel_id}/upload_cnh/")
+async def upload_cnh_files(imovel_id: int, cnh_file: UploadFile = File(...), qr_cnh_file: UploadFile = File(...), db: Session = Depends(get_db)):
+    # Verificar se o imóvel existe
+    db_imovel = db.query(models.Imoveis).filter(models.Imoveis.id == imovel_id).first()
+    
+    if not db_imovel:
+        raise HTTPException(status_code=404, detail="Imóvel não encontrado.")
+    
+    # Gerar nomes aleatórios para os arquivos
+    cnh_filename = f"cnh_{uuid.uuid4().hex}{os.path.splitext(cnh_file.filename)[1]}"
+    qr_cnh_filename = f"qr_cnh_{uuid.uuid4().hex}{os.path.splitext(qr_cnh_file.filename)[1]}"
+    
+    # Salvar arquivos no diretório (ou serviço de armazenamento)
+    cnh_path = f"uploads/{cnh_filename}"
+    qr_cnh_path = f"uploads/{qr_cnh_filename}"
+    
+    # Aqui você pode implementar a lógica para salvar os arquivos no sistema de arquivos ou serviço de armazenamento
+    with open(cnh_path, "wb") as buffer:
+        buffer.write(await cnh_file.read())
+    
+    with open(qr_cnh_path, "wb") as buffer:
+        buffer.write(await qr_cnh_file.read())
+    
+    # Atualizar os campos de foto do imóvel no banco de dados
+    db_imovel.foto_cnh_url_prop = cnh_path
+    db_imovel.foto_qrcode_cnh_url_prop = qr_cnh_path
+    
+    # Atualizar o status do imóvel para 5
+    db_imovel.status = 5
+    
+    db.commit()
+    db.refresh(db_imovel)
+
+    # Retornar os dados do imóvel atualizados
+    return db_imovel
+
+
+# rota que recebe o RG 
+
+@app.post("/imoveis/{imovel_id}/upload_rg/")
+async def upload_rg_files(imovel_id: int, rg_frente_file: UploadFile = File(...), rg_costa_file: UploadFile = File(...), db: Session = Depends(get_db)):
+    # Verificar se o imóvel existe
+    db_imovel = db.query(models.Imoveis).filter(models.Imoveis.id == imovel_id).first()
+    
+    if not db_imovel:
+        raise HTTPException(status_code=404, detail="Imóvel não encontrado.")
+    
+    # Gerar nomes aleatórios para os arquivos
+    rg_frente_filename = f"rg_frente_{uuid.uuid4().hex}{os.path.splitext(rg_frente_file.filename)[1]}"
+    rg_costa_filename = f"rg_costa_{uuid.uuid4().hex}{os.path.splitext(rg_costa_file.filename)[1]}"
+    
+    # Salvar arquivos no diretório (ou serviço de armazenamento)
+    rg_frente_path = f"uploads/{rg_frente_filename}"
+    rg_costa_path = f"uploads/{rg_costa_filename}"
+    
+    # Aqui você pode implementar a lógica para salvar os arquivos no sistema de arquivos ou serviço de armazenamento
+    with open(rg_frente_path, "wb") as buffer:
+        buffer.write(await rg_frente_file.read())
+    
+    with open(rg_costa_path, "wb") as buffer:
+        buffer.write(await rg_costa_file.read())
+    
+    # Atualizar os campos de foto do imóvel no banco de dados
+    db_imovel.rg_frente = rg_frente_path
+    db_imovel.rg_costa = rg_costa_path
+    
+    # Atualizar o status do imóvel para 5
+    db_imovel.status = 5
+    
+    db.commit()
+    db.refresh(db_imovel)
+
+    # Retornar os dados do imóvel atualizados
+    return db_imovel
+
+# Rota que recebe a foto pessoal   
+
+@app.post("/imoveis/{imovel_id}/upload_foto_pessoal/")
+async def upload_foto_pessoal(imovel_id: int, foto_pessoal_file: UploadFile = File(...), db: Session = Depends(get_db)):
+    # Verificar se o imóvel existe
+    db_imovel = db.query(models.Imoveis).filter(models.Imoveis.id == imovel_id).first()
+    
+    if not db_imovel:
+        raise HTTPException(status_code=404, detail="Imóvel não encontrado.")
+    
+    # Gerar nome aleatório para o arquivo
+    foto_pessoal_filename = f"foto_pessoal_{uuid.uuid4().hex}{os.path.splitext(foto_pessoal_file.filename)[1]}"
+    
+    # Salvar arquivo no diretório (ou serviço de armazenamento)
+    foto_pessoal_path = f"uploads/{foto_pessoal_filename}"
+    
+    # Aqui você pode implementar a lógica para salvar o arquivo no sistema de arquivos ou serviço de armazenamento
+    with open(foto_pessoal_path, "wb") as buffer:
+        buffer.write(await foto_pessoal_file.read())
+    
+    # Atualizar o campo de foto pessoal no banco de dados
+    db_imovel.foto_pessoal = foto_pessoal_path
+    
+    # Atualizar o status do imóvel para 10
+    db_imovel.status = 10
+    
+    db.commit()
+    db.refresh(db_imovel)
+
+    # Retornar os dados do imóvel atualizados
+    return db_imovel
+ 

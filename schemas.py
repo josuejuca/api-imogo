@@ -63,6 +63,27 @@ class ImovelBase(BaseModel):
     detalhes_do_condominio: Optional[List[str]] = None
     formas_pagamento: Optional[List[str]] = None
     foto_app_capa: Optional[str] = "https://cdn.imogo.com.br/img/banner_imovel.png"
+    tipo_documento: Optional[str] = None
+    nome_completo_prop: Optional[str] = None
+    data_nascimento_prop: Optional[datetime] = None
+    cpf_prop: Optional[str] = None
+    estado_civil_prop: Optional[str] = None
+    foto_cnh_url_prop: Optional[str] = None
+    foto_qrcode_cnh_url_prop: Optional[str] = None
+    pdf_cnh_url_prop: Optional[str] = None
+    rg_prop: Optional[str] = None
+    nome_mae_prop: Optional[str] = None
+    nome_pai_prop: Optional[str] = None
+    cnh_prop: Optional[str] = None
+    matricula_imovel: Optional[str] = None
+    inscricao_iptu: Optional[str] = None
+    cartorio_matricula: Optional[str] = None
+    porcentagem_corretagem: Optional[float] = None
+    saldo_devedor: Optional[float] = None
+    usuario_proprietario: Optional[bool] = False   
+    foto_pessoal: Optional[str] = None
+    rg_frente: Optional[str] = None
+    rg_costa: Optional[str] = None 
 
 
 class ImovelCreate(ImovelBase):
@@ -123,6 +144,9 @@ class ImovelProprietarioUpdate(BaseModel):
     nome_completo_prop: Optional[str] = None
     cpf_prop: Optional[str] = None
     estado_civil_prop: Optional[str] = None
+    status: Optional[int] = 4
+    tipo_documento: Optional[str] = None
+    usuario_proprietario: Optional[bool] = None
     
     
     
