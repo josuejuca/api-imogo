@@ -116,6 +116,7 @@ class ImovelEnderecoUpdate(BaseModel):
     bairro: Optional[str] = None
     cidade: Optional[str] = None
     uf: Optional[str] = None
+    status: Optional[int] = 3
 # parte 3 
 
 class ImovelProprietarioUpdate(BaseModel):

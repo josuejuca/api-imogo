@@ -26,12 +26,10 @@ def create_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_db)
         raise HTTPException(status_code=400, detail=error)  # Retorna erro se existir
     return db_usuario
 
-
 @app.get("/api/v1/usuarios/", response_model=List[schemas.Usuario], tags=["USUÁRIOS"])
 def read_usuarios(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     usuarios = crud.get_usuarios(db, skip=skip, limit=limit)
     return usuarios
-
 
 @app.get("/api/v1/usuarios/{usuario_id}", response_model=schemas.Usuario, tags=["USUÁRIOS"])
 def read_usuario(usuario_id: int, db: Session = Depends(get_db)):
@@ -40,7 +38,6 @@ def read_usuario(usuario_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
     return db_usuario
 
-
 @app.put("/api/v1/usuarios/{usuario_id}", response_model=schemas.Usuario, tags=["USUÁRIOS"])
 def update_usuario(usuario_id: int, usuario: schemas.UsuarioUpdate, db: Session = Depends(get_db)):
     db_usuario, error = crud.update_usuario(db, usuario_id=usuario_id, usuario=usuario)
@@ -48,14 +45,12 @@ def update_usuario(usuario_id: int, usuario: schemas.UsuarioUpdate, db: Session 
         raise HTTPException(status_code=400, detail=error)  # Retorna erro se existir
     return db_usuario
 
-
 @app.delete("/api/v1/usuarios/{usuario_id}", response_model=schemas.Usuario, tags=["USUÁRIOS"])
 def delete_usuario(usuario_id: int, db: Session = Depends(get_db)):
     db_usuario, error = crud.delete_usuario(db, usuario_id=usuario_id)
     if error:
         raise HTTPException(status_code=404, detail=error)  # Retorna erro se existir
     return db_usuario
-
 
 # Endpoints CRUD para Imóveis
 @app.post("/api/v1/imoveis/", response_model=schemas.Imovel, tags=["IMÓVEIS"])
@@ -103,9 +98,7 @@ def read_imoveis_por_usuario(usuario_id: int, skip: int = 0, limit: int = 10, db
     imoveis = crud.get_imoveis_por_usuario(db, usuario_id=usuario_id, skip=skip, limit=limit)
     return imoveis
 
-
 # Login
-
 # Rota de login
 @app.post("/login")
 def login(usuario: schemas.LoginSchema, db: Session = Depends(get_db)):
