@@ -258,6 +258,36 @@ async def upload_cnh_files(imovel_id: int, cnh_file: UploadFile = File(...), qr_
     # Retornar os dados do imóvel atualizados
     return db_imovel
 
+# Rota para upload dos arquivos de CNH
+@app.post("/imoveis/{imovel_id}/upload_pdf_cnh/")
+async def upload_pdf_cnh(imovel_id: int, pdf_cnh_file: UploadFile = File(...), db: Session = Depends(get_db)):
+    # Verificar se o imóvel existe
+    db_imovel = db.query(models.Imoveis).filter(models.Imoveis.id == imovel_id).first()
+    
+    if not db_imovel:
+        raise HTTPException(status_code=404, detail="Imóvel não encontrado.")
+    
+    # Gerar nome aleatório para o arquivo PDF
+    pdf_cnh_filename = f"pdf_cnh_{uuid.uuid4().hex}{os.path.splitext(pdf_cnh_file.filename)[1]}"
+    
+    # Salvar o arquivo no diretório (ou serviço de armazenamento)
+    pdf_cnh_path = f"uploads/{pdf_cnh_filename}"
+    
+    # Aqui você pode implementar a lógica para salvar o arquivo no sistema de arquivos ou serviço de armazenamento
+    with open(pdf_cnh_path, "wb") as buffer:
+        buffer.write(await pdf_cnh_file.read())
+    
+    # Atualizar o campo de PDF da CNH no banco de dados
+    db_imovel.pdf_cnh_url_prop = pdf_cnh_path
+    
+    # Atualizar o status do imóvel para 5
+    db_imovel.status = 5
+    
+    db.commit()
+    db.refresh(db_imovel)
+
+    # Retornar os dados do imóvel atualizados
+    return db_imovel
 
 # rota que recebe o RG 
 

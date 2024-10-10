@@ -92,11 +92,13 @@ class Imoveis(Base):
 class CaracteristicasImovel(Base):
     __tablename__ = "caracteristicas_imovel"
     
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     caracteristicas = Column(String(100), nullable=False)
 
 class CaracteristicasCondominio(Base):
     __tablename__ = "caracteristicas_condominio"
     
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     caracteristicas = Column(String(100), nullable=False)
+
+    
