@@ -52,9 +52,10 @@ class ImovelBase(BaseModel):
     area_privativa: Optional[float] = None
     descricao_complementar: Optional[str] = None
     valor_venda: Optional[float] = None
+    valorCondominio: Optional[float] = None
     cep: Optional[str] = None
     endereco: Optional[str] = None
-    situacao_imovel: Optional[str] = None
+    situacao: Optional[str] = None
     complemento: Optional[str] = None
     bairro: Optional[str] = None
     cidade: Optional[str] = None
@@ -84,7 +85,7 @@ class ImovelBase(BaseModel):
     foto_pessoal: Optional[str] = None
     rg_frente: Optional[str] = None
     rg_costa: Optional[str] = None 
-
+    
 
 class ImovelCreate(ImovelBase):
     pass

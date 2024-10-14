@@ -6,14 +6,14 @@ from typing import List
 import crud, models, schemas
 from database import SessionLocal, engine
 
-
 # Uploads 
+from fastapi.responses import FileResponse
 from models import Imoveis  # Certifique-se de importar o modelo 
 import os
 import uuid  # Para gerar nomes aleatórios
 
 models.Base.metadata.create_all(bind=engine)
-
+UPLOAD_DIRECTORY = "uploads"
 app = FastAPI()
 
 # Dependência para obter a sessão do banco de dados
@@ -59,7 +59,7 @@ def delete_usuario(usuario_id: int, db: Session = Depends(get_db)):
     return db_usuario
 
 # Endpoints CRUD para Imóveis
-@app.post("/api/v1/imoveis/", response_model=schemas.Imovel, tags=["IMÓVEIS"])
+@app.post("/api/v1/imoveis/", response_model=schemas.Imovel, tags=["IMÓVEIS - ETAPA 1"])
 def create_imovel(imovel: schemas.ImovelCreate, db: Session = Depends(get_db)):
     return crud.create_imovel(db=db, imovel=imovel)
 
@@ -126,7 +126,7 @@ def create_imovel_caracteristicas(imovel_data: schemas.ImovelCaracteristicasUpda
     
     return created_imovel
 
-@app.put("/api/v1/imoveis/{imovel_id}/endereco", response_model=schemas.Imovel)
+@app.put("/api/v1/imoveis/{imovel_id}/endereco", response_model=schemas.Imovel, tags=["IMÓVEIS - ETAPA 2"])
 def update_endereco_imovel(imovel_id: int, imovel_data: schemas.ImovelEnderecoUpdate, db: Session = Depends(get_db)):
     db_imovel = crud.get_imovel(db, imovel_id=imovel_id)
     if db_imovel is None:
@@ -135,7 +135,7 @@ def update_endereco_imovel(imovel_id: int, imovel_data: schemas.ImovelEnderecoUp
     updated_imovel = crud.update_imovel(db, imovel_id=imovel_id, imovel=imovel_data)
     return updated_imovel
 
-@app.put("/api/v1/imoveis/{imovel_id}/proprietario", response_model=schemas.Imovel)
+@app.put("/api/v1/imoveis/{imovel_id}/proprietario", response_model=schemas.Imovel, tags=["IMÓVEIS - ETAPA 3"])
 def update_proprietario_imovel(imovel_id: int, imovel_data: schemas.ImovelProprietarioUpdate, db: Session = Depends(get_db)):
     db_imovel = crud.get_imovel(db, imovel_id=imovel_id)
     if db_imovel is None:
@@ -222,7 +222,7 @@ def save_file(file: UploadFile, file_type: str):
     return file_location
 
 # Rota para upload dos arquivos de CNH e QR Code
-@app.post("/imoveis/{imovel_id}/upload_cnh/")
+@app.post("/api/v1/imoveis/{imovel_id}/upload_cnh/", tags=["IMÓVEIS - ETAPA 4"])
 async def upload_cnh_files(imovel_id: int, cnh_file: UploadFile = File(...), qr_cnh_file: UploadFile = File(...), db: Session = Depends(get_db)):
     # Verificar se o imóvel existe
     db_imovel = db.query(models.Imoveis).filter(models.Imoveis.id == imovel_id).first()
@@ -259,7 +259,7 @@ async def upload_cnh_files(imovel_id: int, cnh_file: UploadFile = File(...), qr_
     return db_imovel
 
 # Rota para upload dos arquivos de CNH
-@app.post("/imoveis/{imovel_id}/upload_pdf_cnh/")
+@app.post("/api/v1/imoveis/{imovel_id}/upload_pdf_cnh/", tags=["IMÓVEIS - ETAPA 4"])
 async def upload_pdf_cnh(imovel_id: int, pdf_cnh_file: UploadFile = File(...), db: Session = Depends(get_db)):
     # Verificar se o imóvel existe
     db_imovel = db.query(models.Imoveis).filter(models.Imoveis.id == imovel_id).first()
@@ -291,7 +291,7 @@ async def upload_pdf_cnh(imovel_id: int, pdf_cnh_file: UploadFile = File(...), d
 
 # rota que recebe o RG 
 
-@app.post("/imoveis/{imovel_id}/upload_rg/")
+@app.post("/api/v1/imoveis/{imovel_id}/upload_rg/", tags=["IMÓVEIS - ETAPA 4"])
 async def upload_rg_files(imovel_id: int, rg_frente_file: UploadFile = File(...), rg_costa_file: UploadFile = File(...), db: Session = Depends(get_db)):
     # Verificar se o imóvel existe
     db_imovel = db.query(models.Imoveis).filter(models.Imoveis.id == imovel_id).first()
@@ -329,7 +329,7 @@ async def upload_rg_files(imovel_id: int, rg_frente_file: UploadFile = File(...)
 
 # Rota que recebe a foto pessoal   
 
-@app.post("/imoveis/{imovel_id}/upload_foto_pessoal/")
+@app.post("/api/v1/imoveis/{imovel_id}/upload_foto_pessoal/", tags=["IMÓVEIS - ETAPA 5"])
 async def upload_foto_pessoal(imovel_id: int, foto_pessoal_file: UploadFile = File(...), db: Session = Depends(get_db)):
     # Verificar se o imóvel existe
     db_imovel = db.query(models.Imoveis).filter(models.Imoveis.id == imovel_id).first()
@@ -346,7 +346,7 @@ async def upload_foto_pessoal(imovel_id: int, foto_pessoal_file: UploadFile = Fi
     # Aqui você pode implementar a lógica para salvar o arquivo no sistema de arquivos ou serviço de armazenamento
     with open(foto_pessoal_path, "wb") as buffer:
         buffer.write(await foto_pessoal_file.read())
-    
+
     # Atualizar o campo de foto pessoal no banco de dados
     db_imovel.foto_pessoal = foto_pessoal_path
     
@@ -359,3 +359,39 @@ async def upload_foto_pessoal(imovel_id: int, foto_pessoal_file: UploadFile = Fi
     # Retornar os dados do imóvel atualizados
     return db_imovel
  
+
+
+# uploads 
+
+@app.get("/files", tags=["files"])
+async def list_uploads():
+    """
+    Lista todos os arquivos no diretório de uploads.
+    """
+    try:
+        # Verifica se o diretório de uploads existe
+        if not os.path.exists(UPLOAD_DIRECTORY):
+            raise HTTPException(status_code=404, detail="Diretório de uploads não encontrado.")
+        
+        # Lista todos os arquivos no diretório
+        files = os.listdir(UPLOAD_DIRECTORY)
+        if not files:
+            return {"message": "Nenhum arquivo encontrado no diretório de uploads."}
+        
+        return {"files": files}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao listar os arquivos: {str(e)}")
+    
+@app.get("/files/{file_name}", tags=["files"])
+async def get_upload(file_name: str):
+    """
+    Retorna um arquivo específico do diretório de uploads.
+    """
+    file_path = os.path.join(UPLOAD_DIRECTORY, file_name)
+
+    # Verifica se o arquivo existe
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Arquivo não encontrado.")
+    
+    # Retorna o arquivo
+    return FileResponse(file_path)

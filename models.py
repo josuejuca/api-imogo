@@ -44,14 +44,14 @@ class Imoveis(Base):
     numero_suites = Column(Integer, nullable=True)
     numero_banheiros = Column(Integer, nullable=True)
     numero_garagem = Column(Integer, nullable=True)
-    orientacao_sol = Column(Enum("Poente", "Nascente", "Perpendicular"), nullable=True)
+    orientacao_sol = Column(Enum("Poente", "Nascente", "Perpendicular"), nullable=True) # '','',''
     area_total = Column(DECIMAL(10, 2), nullable=True)
     area_privativa = Column(DECIMAL(10, 2), nullable=True)
     descricao_complementar = Column(Text, nullable=True)
     valor_venda = Column(DECIMAL(15, 2), nullable=True)
     cep = Column(String(10), nullable=True)
     endereco = Column(String(150), nullable=True)
-    situacao_imovel = Column(Enum('Desocupado','Alugado','Ocupado pelo proprietário'), nullable=True)
+    situacao = Column(String(100), nullable=True)
     complemento = Column(String(100), nullable=True)
     bairro = Column(String(100), nullable=True)
     cidade = Column(String(100), nullable=True)
@@ -83,7 +83,7 @@ class Imoveis(Base):
     foto_pessoal = Column(String(255), nullable=True)
     rg_frente = Column(String(255), nullable=True)
     rg_costa = Column(String(255), nullable=True)   
-
+    valorCondominio = Column(DECIMAL(15, 2), nullable=True)
     usuario = relationship("Usuario", back_populates="imoveis")
 
 # ALTER TABLE `Imoveis` ADD `foto_app_capa` VARCHAR(100) NOT NULL DEFAULT 'https://cdn.imogo.com.br/img/banner_imovel.png' AFTER `saldo_devedor`;
