@@ -11,11 +11,21 @@ from fastapi.responses import FileResponse
 from models import Imoveis  # Certifique-se de importar o modelo 
 import os
 import uuid  # Para gerar nomes aleatórios
+# CORS
+from fastapi.middleware.cors import CORSMiddleware
 
 models.Base.metadata.create_all(bind=engine)
 UPLOAD_DIRECTORY = "uploads"
 app = FastAPI()
 
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permitir essas origens
+    allow_credentials=True,  # Permitir envio de cookies
+    allow_methods=["*"],  # Permitir todos os métodos (GET, POST, etc.)
+    allow_headers=["*"],  # Permitir todos os cabeçalhos
+)
 # Dependência para obter a sessão do banco de dados
 def get_db():
     db = SessionLocal()
