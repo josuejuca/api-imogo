@@ -21,6 +21,11 @@ class UsuarioBase(BaseModel):
     nome_mae: Optional[str] = None
     nome_pai: Optional[str] = None
     cnh: Optional[str] = None
+    tipo_documento: Optional[str] = None
+    foto_pessoal: Optional[str] = None
+    rg_frente: Optional[str] = None
+    rg_costa: Optional[str] = None
+    id_google: Optional[int] = None
 
 class UsuarioCreate(UsuarioBase):
     senha: str

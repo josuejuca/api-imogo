@@ -15,24 +15,24 @@ from schemas import (
     CaracteristicasCondominioUpdate
 )
 
-
 # Função para gerar hash MD5 de uma senha
 def get_md5_hash(senha: str) -> str:
     return hashlib.md5(senha.encode()).hexdigest()
 
-# CRUD para Usuários
-# Verifica se o e-mail já existe no banco de dados
+# Função para verificar se o e-mail já existe no banco de dados
 def get_usuario_by_email(db: Session, email: str):
     return db.query(Usuario).filter(Usuario.email == email).first()
 
-# CRUD para Usuários
+# Função para buscar usuário pelo ID do Google
+def get_usuario_by_id_google(db: Session, id_google: int):
+    return db.query(Usuario).filter(Usuario.id_google == id_google).first()
 
+# CRUD para Usuários
 def get_usuario(db: Session, usuario_id: int):
     return db.query(Usuario).filter(Usuario.id == usuario_id).first()
 
 def get_usuarios(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Usuario).offset(skip).limit(limit).all()
-
 
 def create_usuario(db: Session, usuario: UsuarioCreate):
     # Verifica se o e-mail já existe
@@ -45,10 +45,39 @@ def create_usuario(db: Session, usuario: UsuarioCreate):
         nome_social=usuario.nome_social,
         telefone=usuario.telefone,
         email=usuario.email,
-        senha=get_md5_hash(usuario.senha),
+        senha=hashed_senha,
         origem=usuario.origem,
         foto_conta=usuario.foto_conta,
         status=1  # Status inicial
+    )
+    db.add(db_usuario)
+    db.commit()
+    db.refresh(db_usuario)
+    return db_usuario, None
+
+# Função para criar ou atualizar um usuário através do login com Google
+def create_or_update_usuario_google(db: Session, nome: str, email: str, origem: str, id_google: int, foto_conta: str):
+    # Verifica se o usuário já existe pelo e-mail
+    existing_user = get_usuario_by_email(db, email)
+    
+    if existing_user:
+        # Se o usuário já existe, verifica se o id_google está ausente e atualiza
+        if not existing_user.id_google:
+            existing_user.id_google = id_google
+            db.commit()
+            db.refresh(existing_user)
+        return existing_user, None  # Retorna o usuário existente atualizado (se necessário)
+
+    # Se o usuário não existe, cria um novo
+    hashed_senha = get_md5_hash("juca")  # Gera o hash MD5 da senha padrão "juca"
+    db_usuario = Usuario(
+        nome_social=nome,
+        email=email,
+        origem=origem,
+        status=1,  # Status inicial padrão
+        id_google=id_google,
+        foto_conta=foto_conta,
+        senha=hashed_senha
     )
     db.add(db_usuario)
     db.commit()
@@ -81,7 +110,6 @@ def delete_usuario(db: Session, usuario_id: int):
     db.delete(db_usuario)
     db.commit()
     return db_usuario, None
-
 
 # CRUD para Imoveis
 def get_imovel(db: Session, imovel_id: int):

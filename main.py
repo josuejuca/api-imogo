@@ -18,7 +18,6 @@ models.Base.metadata.create_all(bind=engine)
 UPLOAD_DIRECTORY = "uploads"
 app = FastAPI()
 
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Permitir essas origens
@@ -103,7 +102,6 @@ def delete_imovel(imovel_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Imóvel não encontrado")
     return db_imovel
 
-
 # buscar imovel pelo user 
 
 @app.get("/api/v1/usuarios/{usuario_id}/imoveis", response_model=List[schemas.Imovel], tags=["USUÁRIOS"])
@@ -115,6 +113,30 @@ def read_imoveis_por_usuario(usuario_id: int, skip: int = 0, limit: int = 10, db
     return imoveis
 
 # Login
+# Rota de login com Google
+@app.post("/api/v1/login/google", tags=["USUÁRIOS"])
+def login_google(id_google: int, nome: str, email: str, foto_conta: str, db: Session = Depends(get_db)):
+    # Verifica se o usuário já existe pelo e-mail ou ID do Google e cria/atualiza conforme necessário
+    db_usuario, error = crud.create_or_update_usuario_google(
+        db=db,
+        nome=nome,
+        email=email,
+        origem="google",  # Define a origem como Google
+        id_google=id_google,
+        foto_conta=foto_conta
+    )
+    
+    if error:
+        raise HTTPException(status_code=400, detail=error)
+    
+    return {
+        "message": "Login Google bem-sucedido",
+        "usuario_id": db_usuario.id,
+        "nome": db_usuario.nome_social,
+        "email": db_usuario.email,
+        "foto_conta": db_usuario.foto_conta
+    }
+
 # Rota de login
 @app.post("/login")
 def login(usuario: schemas.LoginSchema, db: Session = Depends(get_db)):

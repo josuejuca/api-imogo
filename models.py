@@ -28,9 +28,13 @@ class Usuario(Base):
     nome_mae = Column(String(100), nullable=True)
     nome_pai = Column(String(100), nullable=True)
     cnh = Column(String(20), nullable=True)
+    tipo_documento = Column(String(255), nullable=True)
+    foto_pessoal = Column(String(255), nullable=True)
+    rg_frente = Column(String(255), nullable=True)
+    rg_costa = Column(String(255), nullable=True)
+    id_google = Column(Integer, nullable=True)
 
     imoveis = relationship("Imoveis", back_populates="usuario")  # Nome correto da tabela
-
 
 class Imoveis(Base):
     __tablename__ = "Imoveis"  # Nome correto da tabela
