@@ -77,12 +77,14 @@ def create_or_update_usuario_google(db: Session, nome: str, email: str, origem: 
         status=1,  # Status inicial padrão
         id_google=id_google,
         foto_conta=foto_conta,
-        senha=hashed_senha
+        senha=hashed_senha,
+        telefone="não informado"  # Valor padrão para telefone
     )
     db.add(db_usuario)
     db.commit()
     db.refresh(db_usuario)
     return db_usuario, None
+
 
 def update_usuario(db: Session, usuario_id: int, usuario: UsuarioUpdate):
     db_usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
