@@ -176,6 +176,37 @@ def update_proprietario_imovel(imovel_id: int, imovel_data: schemas.ImovelPropri
     updated_imovel = crud.update_imovel(db, imovel_id=imovel_id, imovel=imovel_data)
     return updated_imovel
 
+@app.put("/api/v2/imoveis/{imovel_id}/proprietario", response_model=schemas.Imovel, tags=["IMÓVEIS - ETAPA 3"])
+def update_proprietario_imovel_2(imovel_id: int, imovel_data: schemas.ImovelProprietarioUpdate, db: Session = Depends(get_db)):
+    # Buscar o imóvel pelo ID
+    db_imovel = crud.get_imovel(db, imovel_id=imovel_id)
+    if db_imovel is None:
+        raise HTTPException(status_code=404, detail="Imóvel não encontrado")
+    
+    # Atualizar o imóvel
+    updated_imovel = crud.update_imovel(db, imovel_id=imovel_id, imovel=imovel_data)
+
+    # Usar o usuario_id do imóvel para encontrar o usuário
+    usuario_proprietario = crud.get_usuario(db, db_imovel.usuario_id)
+    if usuario_proprietario:
+        # Atualizar apenas os campos específicos do usuário proprietário
+        usuario_update_data = {
+            "nome_completo": imovel_data.nome_completo_prop,
+            "cpf": imovel_data.cpf_prop,
+            "estado_civil": imovel_data.estado_civil_prop,
+            "tipo_documento": imovel_data.tipo_documento,
+            "usuario_proprietario": imovel_data.usuario_proprietario
+        }
+        # Remove campos que são None para não sobrescrever com valores vazios
+        usuario_update_data = {k: v for k, v in usuario_update_data.items() if v is not None}
+        
+        if usuario_update_data:  # Somente atualiza se houver dados a serem atualizados
+            crud.update_usuario(db, usuario_proprietario.id, usuario_update_data)
+    else:
+        raise HTTPException(status_code=404, detail="Usuário proprietário não encontrado")
+
+    return updated_imovel
+
 
 # endpoitn caracteristicas imob
 

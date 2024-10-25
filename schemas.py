@@ -4,6 +4,13 @@ from typing import List, Optional
 from datetime import datetime
 from pydantic import BaseModel
 
+class UsuarioUpdate(BaseModel):
+    nome_completo: Optional[str] = None
+    cpf: Optional[str] = None
+    estado_civil: Optional[str] = None
+    tipo_documento: Optional[str] = None
+    usuario_proprietario: Optional[bool] = None
+
 class UsuarioBase(BaseModel):
     nome_social: str
     telefone: str

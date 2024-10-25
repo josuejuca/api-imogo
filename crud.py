@@ -85,25 +85,22 @@ def create_or_update_usuario_google(db: Session, nome: str, email: str, origem: 
     db.refresh(db_usuario)
     return db_usuario, None
 
+# Função para buscar usuário pelo ID
+def get_usuario(db: Session, usuario_id: int):
+    return db.query(Usuario).filter(Usuario.id == usuario_id).first()
 
-def update_usuario(db: Session, usuario_id: int, usuario: UsuarioUpdate):
+def update_usuario(db: Session, usuario_id: int, usuario_data: dict):
     db_usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
     if db_usuario is None:
         return None, "Usuário não encontrado."
     
-    # Verifica se o e-mail já está sendo usado por outro usuário
-    if usuario.email and usuario.email != db_usuario.email:
-        existing_user = get_usuario_by_email(db, usuario.email)
-        if existing_user:
-            return None, "E-mail já em uso por outro usuário."
-    
-    if usuario.senha:
-        usuario.senha = get_md5_hash(usuario.senha)  # Atualiza a senha com o hash MD5
-    for key, value in usuario.dict(exclude_unset=True).items():
+    # Atualiza apenas os campos que estão definidos no dicionário
+    for key, value in usuario_data.items():
         setattr(db_usuario, key, value)
+    
     db.commit()
     db.refresh(db_usuario)
-    return db_usuario, None
+    return db_usuario
 
 def delete_usuario(db: Session, usuario_id: int):
     db_usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
